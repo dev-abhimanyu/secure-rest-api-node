@@ -15,7 +15,13 @@ async function getAllData() {
   // return await database.collection(collectionName).find({}).toArray();
 }
 
+async function deleteData(id){
+  const deletedData = await Users.deleteOne({_id : id});
+  return deletedData;
+}
+
 module.exports = {
-  insertData,
   getAllData,
+  insertData,
+  deleteData
 };

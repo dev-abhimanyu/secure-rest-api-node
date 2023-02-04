@@ -4,7 +4,7 @@ const cors = require('cors');
 const helment = require('helmet');
 const morgan = require('morgan');
 const {startDatabase, getDatabase} = require('./database/mongo');
-const {insertData, getAllData} = require('./database/crud');
+const {getAllData, insertData, deleteData} = require('./database/crud');
 const methodOverride = require('method-override');
 
 const PORT = 3001;
@@ -26,18 +26,25 @@ app.use(morgan('combined'));
 
 // defining endpoint to return data
 app.get('/', async(req,res) => {
-    console.log("GET called!!");
+    // console.log("GET called!!");
     let data = await getAllData();
-    console.log(data);
+    // console.log(data);
     res.send(data);
 });
 
+// endpoint to add a user
 app.post('/', async(req, res) => {
     // console.log("POST called!!");
     await insertData(req);
-    res.redirect("/");
-})
+    res.send({message: "New user added"});
+});
 
+// endpoint to delete a user
+app.delete('/:id', async(req, res) => {
+    await deleteData(req.params.id);
+    res.send({message: "User deleted"});
+    
+});
 
 // start the MongoDB instance
 startDatabase().then(async() =>{
