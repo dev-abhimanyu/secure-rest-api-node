@@ -3,13 +3,17 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const helment = require('helmet');
 const morgan = require('morgan');
-const {startDatabase} = require('./database/mongo');
-const {insertAd, getAds} = require('./database/ads');
+const {startDatabase, getDatabase} = require('./database/mongo');
+const {insertData, getAllData} = require('./database/crud');
+const methodOverride = require('method-override');
 
 const PORT = 3001;
 
 // defining the Express app
 const app = express();
+
+app.use(methodOverride('_method'));
+app.use(express.urlencoded({extended: true})); //needed for body-parsing of post request-parses the form data
 
 // adding helmet to enhance REST API's security
 app.use(helment());
@@ -20,16 +24,23 @@ app.use(cors());
 // adding morgan to log HTTP requests
 app.use(morgan('combined'));
 
-
 // defining endpoint to return data
 app.get('/', async(req,res) => {
-    res.send(await getAds);
+    console.log("GET called!!");
+    let data = await getAllData();
+    console.log(data);
+    res.send(data);
+});
+
+app.post('/', async(req, res) => {
+    // console.log("POST called!!");
+    await insertData(req);
+    res.redirect("/");
 })
 
-// start the in-memory MongoDB instance
+
+// start the MongoDB instance
 startDatabase().then(async() =>{
-    
-    await insertAd({title: 'Hello, now from the in-memory database!'});
 
     // start the server
     app.listen(PORT, async() => {
